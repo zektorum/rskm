@@ -36,7 +36,7 @@ pub enum KeyAction {
         r#type: String,
         #[arg(long)]
         comment: Option<String>,
-        #[arg(long)]
+        #[arg(long, default_value = "true")]
         passphrase: bool,
     },
     List,
