@@ -89,23 +89,15 @@ pub enum HostAction {
 
 #[derive(Subcommand)]
 pub enum ConfigAction {
-    /// Generate ~/.ssh/config from hosts.toml
     Generate {
-        /// Print to stdout without writing to file
         #[arg(long)]
         dry_run: bool,
-        /// Custom output path (default: ~/.ssh/config)
         #[arg(long, short)]
         output: Option<String>,
-        /// Don't create a backup of the existing config
         #[arg(long)]
         no_backup: bool,
     },
-    /// Validate that all referenced keys exist and config is consistent
-    Validate,
-    /// Show the current generated config diff against existing ~/.ssh/config
     Diff,
-    /// Show path to the hosts.toml config file
     Path,
 }
 
