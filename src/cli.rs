@@ -103,7 +103,6 @@ pub enum ConfigAction {
 
 #[derive(Subcommand)]
 pub enum AgentAction {
-    /// Load key(s) into ssh-agent
     Load {
         /// Specific key name; if omitted, loads all managed keys
         name: Option<String>,
@@ -111,15 +110,14 @@ pub enum AgentAction {
         #[arg(long, short)]
         lifetime: Option<u64>,
     },
-    /// Remove key(s) from ssh-agent
     Remove {
         /// Specific key name; if omitted, removes all managed keys
         name: Option<String>,
     },
     /// Remove all keys from ssh-agent
-    Clear,
+    Clear, /// TODO print warning
     /// List keys currently loaded in ssh-agent
     List,
-    /// Check if ssh-agent is running
+    /// Check if ssh-agent is running (depends on implementation)
     Status,
 }
