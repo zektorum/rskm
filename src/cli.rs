@@ -32,7 +32,7 @@ pub enum KeyAction {
     Generate {
         #[arg(long)]
         name: String,
-        #[arg(long, default_value = "ed25519")]
+        #[arg(long, default_value = "ED25519")]
         r#type: String,
         #[arg(long)]
         comment: Option<String>,
