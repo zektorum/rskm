@@ -1,5 +1,14 @@
 use std::str::FromStr;
 
+enum KeyTypes {
+    ED25519,
+    ED25519SK,
+    ECDSA,
+    ECSASK,
+    XMSS,
+    RSA
+}
+
 impl FromStr for KeyTypes {
     type Err = String;
     
@@ -14,13 +23,4 @@ impl FromStr for KeyTypes {
             _ => Err(format!("Unknown key type: {}", s))
         }
     }
-}
-
-enum KeyTypes {
-    ED25519,
-    ED25519SK,
-    ECDSA,
-    ECSASK,
-    XMSS,
-    RSA
 }
