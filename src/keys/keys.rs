@@ -1,12 +1,20 @@
+use std::path::PathBuf;
 use std::str::FromStr;
 
-enum KeyTypes {
+pub enum KeyTypes {
     ED25519,
     ED25519SK,
     ECDSA,
     ECDSASK,
     XMSS,
     RSA,
+}
+
+pub enum KeySizes {
+    // RSA, ECDSA
+    Bits(u32),
+    // XMSS
+    XmssParameterSet(String)
 }
 
 impl FromStr for KeyTypes {
@@ -36,4 +44,15 @@ impl KeyTypes {
             KeyTypes::RSA       => vec!["-t", "rsa", "-b", "4096"],
         }
     }
+}
+
+pub struct KeyGenOptions {
+    key_name: String,
+    key_type: KeyTypes,
+    key_size: Option<KeySizes>,
+    comment: Option<String>,
+    passphrase: Option<String>,
+    no_passphrase: bool,
+    use_ssh_dir: bool,
+    output_dir: Option<PathBuf>
 }
