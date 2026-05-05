@@ -30,6 +30,7 @@ impl FromStr for KeyTypes {
 }
 
 impl KeyTypes {
+    // Default ssh-keygen args for given key type
     fn ssh_keygen_args(&self) -> Vec<&str> {
         match self {
             KeyTypes::ED25519   => vec!["-t", "ed25519"],
