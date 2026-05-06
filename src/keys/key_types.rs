@@ -12,10 +12,10 @@ impl FromStr for KeyTypes {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_uppercase().as_str() {
-            "ED25519"   => Ok(KeyTypes::ED25519),
-            "ECDSA"     => Ok(KeyTypes::ECDSA),
-            "XMSS"      => Ok(KeyTypes::XMSS),
-            "RSA"       => Ok(KeyTypes::RSA),
+            "ed25519"   => Ok(KeyTypes::ED25519),
+            "ecdsa"     => Ok(KeyTypes::ECDSA),
+            "xmss"      => Ok(KeyTypes::XMSS),
+            "rsa"       => Ok(KeyTypes::RSA),
             _           => Err(format!("Unknown key type: {}", s)),
         }
     }
