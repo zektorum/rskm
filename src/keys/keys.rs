@@ -1,8 +1,10 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
+use dirs::home_dir;
+
 pub enum KeyTypes {
-    ED25519,,
+    ED25519,
     ECDSA,
     XMSS,
     RSA,
@@ -41,13 +43,21 @@ impl KeyTypes {
     }
 }
 
-pub struct KeyGenOptions {
-    key_name: String,
+pub struct KeyGenSettings {
     key_type: KeyTypes,
-    key_size: Option<KeySizes>,
-    comment: Option<String>,
-    passphrase: Option<String>,
     no_passphrase: bool,
-    use_ssh_dir: bool,
-    output_dir: Option<PathBuf>
+    output_dir: PathBuf
+}
+
+impl Default for KeyGenSettings {
+    fn default() -> Self {
+        let output_dir = home_dir()
+            .unwrap()
+            .join(".rskm");
+        KeyGenSettings {  
+            key_type: KeyTypes::ED25519,
+            no_passphrase: true,
+            output_dir
+        }
+    }
 }
