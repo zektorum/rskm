@@ -42,9 +42,6 @@ pub enum KeyAction {
         passphrase: Option<String>,
         #[arg(long)]
         no_passphrase: bool,
-        /// Store key in ~/.ssh/ instead of the default ~/.rskm/keys/
-        #[arg(long, conflicts_with = "output_dir")]
-        use_ssh_dir: bool,
         /// Custom directory to store the key
         #[arg(long)]
         output_dir: Option<PathBuf>,
