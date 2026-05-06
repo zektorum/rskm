@@ -1,4 +1,5 @@
 use std::path::{Path, PathBuf};
+use std::process::Command;
 use std::str::FromStr;
 
 use dirs::home_dir;
@@ -8,13 +9,6 @@ pub enum KeyTypes {
     ECDSA,
     XMSS,
     RSA,
-}
-
-pub enum KeySizes {
-    // RSA, ECDSA
-    Bits(u32),
-    // XMSS
-    XmssParameterSet(String)
 }
 
 impl FromStr for KeyTypes {
