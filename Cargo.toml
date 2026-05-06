@@ -6,17 +6,5 @@ edition = "2024"
 [dependencies]
 # CLI argument parsing with derive macros for commands and flags
 clap = { version = "4.5.60", features = ["derive"] }
-# Serialization/deserialization framework with derive macros for structs
-serde = { version = "1.0.228", features = ["derive"] }
 # TOML config file parsing and serialization (used for reading/writing rskm config)
 toml = "0.9.8"
-# Cross-platform access to system directories (home, config, data, etc.)
-dirs = "6"
-# Boilerplate-free error type definitions with derive macros
-thiserror = "2.0.18"
-# Terminal text coloring and styling for CLI output
-colored = "3.1.1"
-# Interactive terminal prompts (confirmations, password input, selections)
-dialoguer = "0.12"
-# Pretty-printing data as formatted tables in the terminal
-tabled = "0.20"
