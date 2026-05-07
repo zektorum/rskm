@@ -19,16 +19,21 @@ impl RskmSettings {
                 .join(".rskm")
         };
 
-        let mut settings = Self {
-            rskm_home,
-            default_key_type: "ed25519".to_string(),
-        };
+        let config_file = rskm_home.join("rskm.toml");
 
-        if settings.config_file().exists() {
-            let content = std::fs::read_to_string(settings.config_file())?;
+        let settings = if config_file.exists() {
+            let content = std::fs::read_to_string(config_file)?;
             let from_file : RskmSettings = toml::from_str(&content)?;
-            settings.default_key_type = from_file.default_key_type;
-        }
+            Self {
+                rskm_home,
+                ..from_file
+            }
+        } else {
+            Self {
+                rskm_home,
+                default_key_type: "ed25519".to_string(),
+            }
+        };
 
         Ok(settings)
     }
