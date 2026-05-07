@@ -4,20 +4,22 @@ use crate::errors::RskmError;
 
 #[derive(Serialize)]
 pub struct RskmSettings {
+    #[serde(skip)]
     pub rskm_home: PathBuf,
     pub default_key_type: String,
 }
 
 impl RskmSettings {
     pub fn new() -> Result<Self, RskmError> {
-        let rskm_home = dirs::home_dir()
-            .ok_or(RskmError::HomeDirectoryNotFound)?
-            .join(".rskm");
+        let rskm_home = if let Ok(path) = std::env::var("RSKM_HOME") {
+            PathBuf::from(path)
+        } else {
+            dirs::home_dir()
+                .ok_or(RskmError::HomeDirectoryNotFound)?
+                .join(".rskm")
+        };
 
-        Ok(Self {
-            rskm_home,
-            default_key_type: "ed25519".to_string(),
-        })
+        Ok(Self { rskm_home, default_key_type: "ed25519".to_string() })
     }
 
     pub fn keys_dir(&self) -> PathBuf {
@@ -41,5 +43,5 @@ impl RskmSettings {
         }
 
         Ok(())
-    } 
+    }
 }
