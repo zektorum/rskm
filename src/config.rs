@@ -9,6 +9,8 @@ pub struct RskmSettings {
     pub default_key_type: String,
 }
 
+const DEFAULT_KEY_TYPE : &str = "ed25519";
+
 impl RskmSettings {
     pub fn new() -> Result<Self, RskmError> {
         let rskm_home = if let Ok(path) = std::env::var("RSKM_HOME") {
@@ -31,7 +33,7 @@ impl RskmSettings {
         } else {
             Self {
                 rskm_home,
-                default_key_type: "ed25519".to_string(),
+                default_key_type: DEFAULT_KEY_TYPE.to_string(),
             }
         };
 
