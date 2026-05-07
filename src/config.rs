@@ -1,8 +1,8 @@
 use std::{error::Error, path::PathBuf};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use crate::errors::RskmError;
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 pub struct RskmSettings {
     #[serde(skip)]
     pub rskm_home: PathBuf,
@@ -19,7 +19,18 @@ impl RskmSettings {
                 .join(".rskm")
         };
 
-        Ok(Self { rskm_home, default_key_type: "ed25519".to_string() })
+        let mut settings = Self {
+            rskm_home,
+            default_key_type: "ed25519".to_string(),
+        };
+
+        if settings.config_file().exists() {
+            let content = std::fs::read_to_string(settings.config_file())?;
+            let from_file : RskmSettings = toml::from_str(&content)?;
+            settings.default_key_type = from_file.default_key_type;
+        }
+
+        Ok(settings)
     }
 
     pub fn keys_dir(&self) -> PathBuf {
