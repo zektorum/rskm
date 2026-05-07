@@ -6,7 +6,9 @@ edition = "2024"
 [dependencies]
 # CLI argument parsing with derive macros for commands and flags
 clap = { version = "4.5.60", features = ["derive"] }
+# System directory paths (home, config, data)
 dirs = "6.0.0"
+# Serialization and deserialization framework
 serde = { version = "1.0.228", features = ["derive"] }
 # TOML config file parsing and serialization (used for reading/writing rskm config)
 toml = "0.9.8"
