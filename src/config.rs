@@ -2,23 +2,23 @@ use std::path::PathBuf;
 
 pub struct RskmSettings {
     pub rskm_home: PathBuf,
-    pub keys_dir: PathBuf,
     pub default_key_type: String,
 }
 
-impl Default for RskmSettings {
-    fn default() -> Self {
-        let rskm_home = dirs::home_dir() //TODO make it possible to change rskm_home dir
-            .expect("Unable to find home directory!")
-            .join(".rskm"); // TODO create error type
+impl RskmSettings {
+    pub fn new() -> Result<Self, Box <dyn std::error::Error>> {
+        let rskm_home = dirs::home_dir()
+            .ok_or("Unable to find home directory")?
+            .join(".rskm");
 
-        let keys_dir = rskm_home.join("keys");
-
-        Self {
+        Ok(Self {
             rskm_home,
-            keys_dir,
-            default_key_type: "ed25519".to_string()
-        }
+            default_key_type: "ed25519".to_string(),
+        })
+    }
+
+    pub fn keys_dir(&self) -> PathBuf {
+        self.rskm_home.join("keys")
     }
 }
 
