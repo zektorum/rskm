@@ -14,7 +14,7 @@ impl FromStr for KeyTypes {
         match s.to_uppercase().as_str() {
             "ed25519"   => Ok(KeyTypes::ED25519),
             "ecdsa"     => Ok(KeyTypes::ECDSA),
-            "xmss"      => Ok(KeyTypes::XMSS),
+            "xmss"      => Ok(KeyTypes::XMSS), //TODO: make feature-toggle for xmss support
             "rsa"       => Ok(KeyTypes::RSA),
             _           => Err(format!("Unknown key type: {}", s)),
         }
