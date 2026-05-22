@@ -9,7 +9,7 @@ pub struct RskmSettings {
     default_key_type: String,
 }
 
-const DEFAULT_KEY_TYPE : &str = "ed25519";
+const DEFAULT_KEY_TYPE: &str = "ed25519";
 const CONFIG_FILE_NAME: &str = "rskm.toml";
 const KEYS_DIR_NAME: &str = "keys";
 
@@ -23,11 +23,11 @@ impl RskmSettings {
                 .join(".rskm")
         };
 
-        let config_file = rskm_home.join("rskm.toml");
+        let config_file = rskm_home.join(CONFIG_FILE_NAME);
 
         let settings = if config_file.exists() {
             let content = std::fs::read_to_string(config_file)?;
-            let from_file : RskmSettings = toml::from_str(&content)?;
+            let from_file: RskmSettings = toml::from_str(&content)?;
             Self {
                 rskm_home,
                 ..from_file
