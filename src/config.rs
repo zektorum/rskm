@@ -5,8 +5,8 @@ use crate::errors::RskmError;
 #[derive(Serialize, Deserialize)]
 pub struct RskmSettings {
     #[serde(skip)]
-    pub rskm_home: PathBuf,
-    pub default_key_type: String,
+    rskm_home: PathBuf,
+    default_key_type: String,
 }
 
 const DEFAULT_KEY_TYPE : &str = "ed25519";
