@@ -10,6 +10,8 @@ pub struct RskmSettings {
 }
 
 const DEFAULT_KEY_TYPE : &str = "ed25519";
+const CONFIG_FILE_NAME: &str = "rskm.toml";
+const KEYS_DIR_NAME: &str = "keys";
 
 impl RskmSettings {
     pub fn new() -> Result<Self, RskmError> {
@@ -41,25 +43,24 @@ impl RskmSettings {
     }
 
     pub fn keys_dir(&self) -> PathBuf {
-        self.rskm_home.join("keys")
+        self.rskm_home.join(KEYS_DIR_NAME)
     }
 
     pub fn config_file(&self) -> PathBuf {
-        self.rskm_home.join("rskm.toml")
+        self.rskm_home.join(CONFIG_FILE_NAME)
     }
 
     pub fn is_initialized(&self) -> bool {
         self.rskm_home.exists() && self.keys_dir().exists()
     }
 
-    pub fn init(&self) -> Result<(), Box<dyn Error>> { // TODO: add RskmErrors here
+    pub fn init(&self) -> Result<(), RskmError> {
         std::fs::create_dir_all(self.keys_dir())?;
-
-        if !self.config_file().exists() {
-           let content = toml::to_string(&self)?;
-           std::fs::write(self.config_file(), content)?;
+        let config_file = self.config_file();
+        if !config_file.exists() {
+            let content = toml::to_string(&self)?;
+            std::fs::write(&config_file, content)?;
         }
-
         Ok(())
     }
 }
