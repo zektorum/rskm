@@ -56,11 +56,8 @@ impl RskmSettings {
 
     pub fn init(&self) -> Result<(), RskmError> {
         std::fs::create_dir_all(self.keys_dir())?;
-        let config_file = self.config_file();
-        if !config_file.exists() {
-            let content = toml::to_string(&self)?;
-            std::fs::write(&config_file, content)?;
-        }
+        let content = toml::to_string(&self)?;
+        std::fs::write(self.config_file(), content)?;
         Ok(())
     }
 }
