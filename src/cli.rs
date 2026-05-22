@@ -11,7 +11,7 @@ struct Rskm {
 enum Commands {
     Create {
         key_name: String,
-        #[arg(short = 't', default_value = "ed25519")]
+        #[arg(short = 't')]
         key_type: String,
     },
     Delete {
