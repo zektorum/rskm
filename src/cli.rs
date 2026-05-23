@@ -65,6 +65,8 @@ pub fn run() -> Result<(), RskmError> {
 
             let status = std::process::Command::new("ssh-keygen")
                 .args(["-t", &key_type, "-f", key_path.to_str().unwrap(), "-N", ""])
+                .stdout(std::process::Stdio::null())
+                .stderr(std::process::Stdio::null())
                 .status()
                 .map_err(|_| RskmError::KeygenFailed)?;
 
