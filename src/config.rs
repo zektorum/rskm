@@ -1,4 +1,4 @@
-use std::{error::Error, path::PathBuf};
+use std::path::PathBuf;
 use serde::{Deserialize, Serialize};
 use crate::errors::RskmError;
 
@@ -54,7 +54,7 @@ impl RskmSettings {
         self.rskm_home.exists() && self.keys_dir().exists()
     }
 
-    pub fn init(&self) -> Result<(), Box<dyn Error>> {
+    pub fn init(&self) -> Result<(), RskmError> {
         std::fs::create_dir_all(self.keys_dir())?;
         let content = toml::to_string(&self)?;
         std::fs::write(self.config_file(), content)?;
