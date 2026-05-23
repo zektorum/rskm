@@ -19,8 +19,17 @@ enum Commands {
     Delete {
         key_name: String,
     },
-    List,
+    List {
+        #[arg(long)]
+        loaded: bool,
+    },
     Show {
+        key_name: String,
+    },
+    Add {
+        key_name: String,
+    },
+    Remove {
         key_name: String,
     },
 }
@@ -78,19 +87,62 @@ pub fn run() -> Result<(), RskmError> {
             println!("Deleted key '{key_name}'");
         }
 
-        Commands::List => {
-            let mut keys: Vec<String> = std::fs::read_dir(settings.keys_dir())?
-                .filter_map(|e| e.ok())
-                .map(|e| e.file_name().to_string_lossy().into_owned())
-                .filter(|name| !name.ends_with(".pub"))
-                .collect();
+        Commands::List { loaded } => {
+            if loaded {
+                let output = std::process::Command::new("ssh-add")
+                    .arg("-L")
+                    .output()
+                    .map_err(|_| RskmError::AgentNotRunning)?;
 
-            keys.sort();
+                if output.status.code() == Some(2) {
+                    return Err(RskmError::AgentNotRunning);
+                }
 
-            if keys.is_empty() {
-                println!("No keys found.");
+                // каждая строка: "ssh-ed25519 <base64> <comment>"
+                // сравниваем первые два поля с .pub файлами, игнорируя комментарий
+                let stdout = String::from_utf8_lossy(&output.stdout).into_owned();
+                let agent_keys: Vec<(String, String)> = stdout
+                    .lines()
+                    .filter_map(|line| {
+                        let mut parts = line.splitn(3, ' ');
+                        Some((parts.next()?.to_string(), parts.next()?.to_string()))
+                    })
+                    .collect();
+
+                let mut found = false;
+                for entry in std::fs::read_dir(settings.keys_dir())? {
+                    let entry = entry?;
+                    let name = entry.file_name().to_string_lossy().into_owned();
+                    if !name.ends_with(".pub") {
+                        continue;
+                    }
+                    let content = std::fs::read_to_string(entry.path())?;
+                    let mut parts = content.trim().splitn(3, ' ');
+                    if let (Some(t), Some(k)) = (parts.next(), parts.next()) {
+                        if agent_keys.iter().any(|(at, ak)| at == t && ak == k) {
+                            println!("{}", name.trim_end_matches(".pub"));
+                            found = true;
+                        }
+                    }
+                }
+
+                if !found {
+                    println!("No rskm keys loaded in agent.");
+                }
             } else {
-                keys.iter().for_each(|k| println!("{k}"));
+                let mut keys: Vec<String> = std::fs::read_dir(settings.keys_dir())?
+                    .filter_map(|e| e.ok())
+                    .map(|e| e.file_name().to_string_lossy().into_owned())
+                    .filter(|name| !name.ends_with(".pub"))
+                    .collect();
+
+                keys.sort();
+
+                if keys.is_empty() {
+                    println!("No keys found.");
+                } else {
+                    keys.iter().for_each(|k| println!("{k}"));
+                }
             }
         }
 
@@ -103,6 +155,44 @@ pub fn run() -> Result<(), RskmError> {
 
             let content = std::fs::read_to_string(pub_key_path)?;
             print!("{content}");
+        }
+
+        Commands::Add { key_name } => {
+            let key_path = settings.keys_dir().join(&key_name);
+
+            if !key_path.exists() {
+                return Err(RskmError::KeyNotFound(key_name));
+            }
+
+            let status = std::process::Command::new("ssh-add")
+                .arg(&key_path)
+                .status()
+                .map_err(|_| RskmError::AgentNotRunning)?;
+
+            if !status.success() {
+                return Err(RskmError::AgentOperationFailed(format!("failed to add '{key_name}'")));
+            }
+
+            println!("Added key '{key_name}' to agent.");
+        }
+
+        Commands::Remove { key_name } => {
+            let key_path = settings.keys_dir().join(&key_name);
+
+            if !key_path.exists() {
+                return Err(RskmError::KeyNotFound(key_name));
+            }
+
+            let status = std::process::Command::new("ssh-add")
+                .args(["-d", key_path.to_str().unwrap()])
+                .status()
+                .map_err(|_| RskmError::AgentNotRunning)?;
+
+            if !status.success() {
+                return Err(RskmError::AgentOperationFailed(format!("failed to remove '{key_name}'")));
+            }
+
+            println!("Removed key '{key_name}' from agent.");
         }
     }
 
