@@ -98,8 +98,6 @@ pub fn run() -> Result<(), RskmError> {
                     return Err(RskmError::AgentNotRunning);
                 }
 
-                // каждая строка: "ssh-ed25519 <base64> <comment>"
-                // сравниваем первые два поля с .pub файлами, игнорируя комментарий
                 let stdout = String::from_utf8_lossy(&output.stdout).into_owned();
                 let agent_keys: Vec<(String, String)> = stdout
                     .lines()
