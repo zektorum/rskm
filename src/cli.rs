@@ -14,12 +14,15 @@ enum Commands {
     Create {
         key_name: String,
         #[arg(short = 't')]
-        key_type: String,
+        key_type: Option<String>,
     },
     Delete {
         key_name: String,
     },
     List,
+    Show {
+        key_name: String,
+    },
 }
 
 pub fn run() -> Result<(), RskmError> {
@@ -37,6 +40,19 @@ pub fn run() -> Result<(), RskmError> {
             if key_path.exists() {
                 return Err(RskmError::KeyExists(key_name));
             }
+
+            let key_type = match key_type {
+                Some(t) => t,
+                None => {
+                    let content = std::fs::read_to_string(settings.config_file())?;
+                    let parsed: toml::Table = toml::from_str(&content)
+                        .map_err(|e| RskmError::ConfigParseError(e.to_string()))?;
+                    parsed["default_key_type"]
+                        .as_str()
+                        .ok_or_else(|| RskmError::ConfigParseError("default_key_type not found".into()))?
+                        .to_string()
+                }
+            };
 
             let status = std::process::Command::new("ssh-keygen")
                 .args(["-t", &key_type, "-f", key_path.to_str().unwrap(), "-N", ""])
@@ -76,6 +92,17 @@ pub fn run() -> Result<(), RskmError> {
             } else {
                 keys.iter().for_each(|k| println!("{k}"));
             }
+        }
+
+        Commands::Show { key_name } => {
+            let pub_key_path = settings.keys_dir().join(&key_name).with_extension("pub");
+
+            if !pub_key_path.exists() {
+                return Err(RskmError::KeyNotFound(key_name));
+            }
+
+            let content = std::fs::read_to_string(pub_key_path)?;
+            print!("{content}");
         }
     }
 
