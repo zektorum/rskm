@@ -1,6 +1,6 @@
 use clap::{Parser, Subcommand};
 
-use crate::{config::RskmSettings, errors::RskmError};
+use crate::{config::RskmSettings, errors::RskmError, keys::key_types::KeyTypes};
 
 #[derive(Parser)]
 #[command(name = "rskm", version = env!("CARGO_PKG_VERSION"), about = "Rust SSH Key Manager")]
@@ -50,18 +50,8 @@ pub fn run() -> Result<(), RskmError> {
                 return Err(RskmError::KeyExists(key_name));
             }
 
-            let key_type = match key_type {
-                Some(t) => t,
-                None => {
-                    let content = std::fs::read_to_string(settings.config_file())?;
-                    let parsed: toml::Table = toml::from_str(&content)
-                        .map_err(|e| RskmError::ConfigParseError(e.to_string()))?;
-                    parsed["default_key_type"]
-                        .as_str()
-                        .ok_or_else(|| RskmError::ConfigParseError("default_key_type not found".into()))?
-                        .to_string()
-                }
-            };
+            let key_type = key_type.unwrap_or_else(|| settings.default_key_type().to_string());
+            key_type.parse::<KeyTypes>()?;
 
             let key_path_str = key_path
                 .to_str()
