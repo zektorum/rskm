@@ -50,6 +50,10 @@ impl RskmSettings {
         self.rskm_home.join(CONFIG_FILE_NAME)
     }
 
+    pub fn default_key_type(&self) -> &str {
+        &self.default_key_type
+    }
+
     pub fn is_initialized(&self) -> bool {
         self.rskm_home.exists() && self.keys_dir().exists()
     }
