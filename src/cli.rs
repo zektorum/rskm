@@ -19,10 +19,7 @@ enum Commands {
     Delete {
         key_name: String,
     },
-    List {
-        #[arg(long)]
-        loaded: bool,
-    },
+    List {},
     Show {
         key_name: String,
     },
@@ -88,60 +85,19 @@ pub fn run() -> Result<(), RskmError> {
             println!("Deleted key '{key_name}'");
         }
 
-        Commands::List { loaded } => { // TODO: refactor me
-            if loaded {
-                let output = std::process::Command::new("ssh-add")
-                    .arg("-L")
-                    .output()
-                    .map_err(|_| RskmError::AgentNotRunning)?;
+        Commands::List {} => {
+            let mut keys: Vec<String> = std::fs::read_dir(settings.keys_dir())?
+                .filter_map(|e| e.ok())
+                .map(|e| e.file_name().to_string_lossy().into_owned())
+                .filter(|name| !name.ends_with(".pub"))
+                .collect();
 
-                if output.status.code() == Some(2) {
-                    return Err(RskmError::AgentNotRunning);
-                }
+            keys.sort();
 
-                let stdout = String::from_utf8_lossy(&output.stdout).into_owned();
-                let agent_keys: Vec<(String, String)> = stdout
-                    .lines()
-                    .filter_map(|line| {
-                        let mut parts = line.splitn(3, ' ');
-                        Some((parts.next()?.to_string(), parts.next()?.to_string()))
-                    })
-                    .collect();
-
-                let mut found = false;
-                for entry in std::fs::read_dir(settings.keys_dir())? {
-                    let entry = entry?;
-                    let name = entry.file_name().to_string_lossy().into_owned();
-                    if !name.ends_with(".pub") {
-                        continue;
-                    }
-                    let content = std::fs::read_to_string(entry.path())?;
-                    let mut parts = content.trim().splitn(3, ' ');
-                    if let (Some(t), Some(k)) = (parts.next(), parts.next()) {
-                        if agent_keys.iter().any(|(at, ak)| at == t && ak == k) {
-                            println!("{}", name.trim_end_matches(".pub"));
-                            found = true;
-                        }
-                    }
-                }
-
-                if !found {
-                    println!("No rskm keys loaded in agent.");
-                }
+            if keys.is_empty() {
+                println!("No keys found.");
             } else {
-                let mut keys: Vec<String> = std::fs::read_dir(settings.keys_dir())?
-                    .filter_map(|e| e.ok())
-                    .map(|e| e.file_name().to_string_lossy().into_owned())
-                    .filter(|name| !name.ends_with(".pub"))
-                    .collect();
-
-                keys.sort();
-
-                if keys.is_empty() {
-                    println!("No keys found.");
-                } else {
-                    keys.iter().for_each(|k| println!("{k}"));
-                }
+                keys.iter().for_each(|k| println!("{k}"));
             }
         }
 
