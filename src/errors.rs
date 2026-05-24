@@ -5,7 +5,9 @@ use std::io;
 pub enum RskmError {
     KeyExists(String),
     KeyNotFound(String),
+
     KeygenFailed,
+    UnknownKeyType(String),
 
     HostExists(String),
     HostNotFound(String),
@@ -28,7 +30,9 @@ impl fmt::Display for RskmError {
         match self {
             Self::KeyExists(name) => write!(f, "Key '{}' already exists", name),
             Self::KeyNotFound(name) => write!(f, "Key '{}' not found", name),
-            Self::KeygenFailed => write!(f, "ssh-keygen failed"),
+            
+            Self::KeygenFailed => write!(f, "ssh-keygen failed"), //FIXME
+            Self::UnknownKeyType(key_type) => write!(f, "unknown key type: '{}', must be one of: ed25519, ecdsa, xmss, rsa", key_type),
 
             Self::HostExists(name) => write!(f, "Host '{}' already exists", name),
             Self::HostNotFound(name) => write!(f, "Host '{}' not found", name),

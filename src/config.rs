@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 use serde::{Deserialize, Serialize};
-use crate::errors::RskmError;
+use crate::{errors::RskmError, keys::key_types::KeyTypes};
 
 #[derive(Serialize, Deserialize)]
 pub struct RskmSettings {
@@ -52,6 +52,11 @@ impl RskmSettings {
 
     pub fn default_key_type(&self) -> &str {
         &self.default_key_type
+    }
+
+    pub fn validate(&self) -> Result<(), RskmError> {
+        self.default_key_type.parse::<KeyTypes>()?;
+        Ok(())
     }
 
     pub fn is_initialized(&self) -> bool {
