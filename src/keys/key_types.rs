@@ -11,7 +11,7 @@ impl FromStr for KeyTypes {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s.to_uppercase().as_str() {
+        match s {
             "ed25519"   => Ok(KeyTypes::Ed25519),
             "ecdsa"     => Ok(KeyTypes::Ecdsa),
             "xmss"      => Ok(KeyTypes::Xmss), //TODO: make feature-toggle for xmss support
