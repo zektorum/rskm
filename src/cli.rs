@@ -79,7 +79,12 @@ pub fn run() -> Result<(), RskmError> {
             }
 
             std::fs::remove_file(&key_path)?;
-            std::fs::remove_file(key_path.with_extension("pub")).ok(); // FIXME
+
+            let pub_key_path = key_path.with_extension("pub");
+            if pub_key_path.exists() {
+                std::fs::remove_file(pub_key_path)?;
+            }
+
             println!("Deleted key '{key_name}'");
         }
 
