@@ -63,8 +63,12 @@ pub fn run() -> Result<(), RskmError> {
                 }
             };
 
+            let key_path_str = key_path
+                .to_str()
+                .ok_or_else(|| RskmError::InvalidPath(format!("invalid path: {:?}", key_path)))?;
+
             let status = std::process::Command::new("ssh-keygen")
-                .args(["-t", &key_type, "-f", key_path.to_str().unwrap(), "-N", ""])
+                .args(["-t", &key_type, "-f", key_path_str, "-N", ""])
                 .stdout(std::process::Stdio::null())
                 .stderr(std::process::Stdio::null())
                 .status()
@@ -85,11 +89,11 @@ pub fn run() -> Result<(), RskmError> {
             }
 
             std::fs::remove_file(&key_path)?;
-            std::fs::remove_file(key_path.with_extension("pub")).ok();
+            std::fs::remove_file(key_path.with_extension("pub")).ok(); // FIXME
             println!("Deleted key '{key_name}'");
         }
 
-        Commands::List { loaded } => {
+        Commands::List { loaded } => { // TODO: refactor me
             if loaded {
                 let output = std::process::Command::new("ssh-add")
                     .arg("-L")

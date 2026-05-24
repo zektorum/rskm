@@ -19,7 +19,8 @@ pub enum RskmError {
 
     Io(io::Error),
     HomeDirectoryNotFound,
-    InvalidInput(String)
+    InvalidInput(String),
+    InvalidPath(String),
 }
 
 impl fmt::Display for RskmError {
@@ -42,6 +43,7 @@ impl fmt::Display for RskmError {
             Self::Io(err) => write!(f, "IO error: {}", err),
             Self::HomeDirectoryNotFound => write!(f, "Could not determine home directory"),
             Self::InvalidInput(msg) => write!(f, "Invalid input: {}", msg),
+            Self::InvalidPath(msg) => write!(f, "Invalid input: {}", msg),
         }
     }
 }
