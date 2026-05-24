@@ -42,6 +42,22 @@ impl RskmSettings {
         Ok(settings)
     }
 
+    pub fn is_initialized(&self) -> bool {
+        self.rskm_home.exists() && self.keys_dir().exists()
+    }
+
+    pub fn init(&self) -> Result<(), RskmError> {
+        std::fs::create_dir_all(self.keys_dir())?;
+        let content = toml::to_string(&self)?;
+        std::fs::write(self.config_file(), content)?;
+        Ok(())
+    }
+
+    pub fn validate(&self) -> Result<(), RskmError> {
+        self.default_key_type.parse::<KeyTypes>()?;
+        Ok(())
+    }
+
     pub fn keys_dir(&self) -> PathBuf {
         self.rskm_home.join(KEYS_DIR_NAME)
     }
@@ -52,21 +68,5 @@ impl RskmSettings {
 
     pub fn default_key_type(&self) -> &str {
         &self.default_key_type
-    }
-
-    pub fn validate(&self) -> Result<(), RskmError> {
-        self.default_key_type.parse::<KeyTypes>()?;
-        Ok(())
-    }
-
-    pub fn is_initialized(&self) -> bool {
-        self.rskm_home.exists() && self.keys_dir().exists()
-    }
-
-    pub fn init(&self) -> Result<(), RskmError> {
-        std::fs::create_dir_all(self.keys_dir())?;
-        let content = toml::to_string(&self)?;
-        std::fs::write(self.config_file(), content)?;
-        Ok(())
     }
 }
