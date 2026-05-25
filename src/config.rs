@@ -69,4 +69,8 @@ impl RskmSettings {
     pub fn default_key_type(&self) -> &str {
         &self.default_key_type
     }
+
+    pub fn rskm_home(&self) -> &PathBuf {
+        &self.rskm_home
+    }
 }

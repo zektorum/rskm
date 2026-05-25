@@ -1,4 +1,5 @@
 use clap::{Parser, Subcommand};
+use prompted::input;
 
 use crate::{config::RskmSettings, errors::RskmError, keys::key_types::KeyTypes};
 
@@ -29,6 +30,10 @@ enum Commands {
     Remove {
         key_name: String,
     },
+    Destroy {
+        #[arg(short = 'y')]
+        yes: bool,
+    },
 }
 
 pub fn run() -> Result<(), RskmError> {
@@ -50,7 +55,7 @@ pub fn run() -> Result<(), RskmError> {
             let key_type = key_type.unwrap_or_else(|| settings.default_key_type().to_string());
             key_type.parse::<KeyTypes>()?;
 
-            let key_path_str = key_path
+            let key_path_str = key_path // TODO: use variable shadowing
                 .to_str()
                 .ok_or_else(|| RskmError::InvalidPath(format!("invalid path: {:?}", key_path)))?;
 
@@ -148,6 +153,19 @@ pub fn run() -> Result<(), RskmError> {
             }
 
             println!("Removed key '{key_name}' from agent.");
+        }
+
+        Commands::Destroy { yes } => {
+            if !yes {
+                let answer = input!("Do you really want to delete RSKM_HOME? This cannot be undone! [y/N] ");
+                if answer.trim().to_lowercase() != "y" {
+                    println!("Aborted.");
+                    return Ok(());
+                }
+            }
+
+            std::fs::remove_dir_all(settings.rskm_home())?;
+            println!("Destroyed RSKM_HOME.");
         }
     }
 
