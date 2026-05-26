@@ -35,7 +35,7 @@ impl fmt::Display for RskmError {
             Self::KeyExists(name) => write!(f, "Key '{}' already exists", name),
             Self::KeyNotFound(name) => write!(f, "Key '{}' not found", name),
 
-            Self::KeygenFailed => write!(f, "ssh-keygen failed"), //FIXME
+            Self::KeygenFailed => write!(f, "ssh-keygen failed"),
             Self::UnknownKeyType(key_type) => write!(
                 f,
                 "unknown key type: '{}', must be one of: ed25519, ecdsa, xmss, rsa",
