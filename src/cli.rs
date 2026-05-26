@@ -67,12 +67,12 @@ pub fn run() -> Result<(), RskmError> {
             let key_type = key_type.unwrap_or_else(|| settings.default_key_type().to_string());
             key_type.parse::<KeyTypes>()?;
 
-            let key_path_str = key_path // TODO: use variable shadowing
+            let key_path = key_path
                 .to_str()
                 .ok_or_else(|| RskmError::InvalidPath(format!("invalid path: {:?}", key_path)))?;
 
             let status = std::process::Command::new("ssh-keygen")
-                .args(["-t", &key_type, "-f", key_path_str, "-N", ""])
+                .args(["-t", &key_type, "-f", key_path, "-N", ""])
                 .stdout(std::process::Stdio::null())
                 .stderr(std::process::Stdio::null())
                 .status()
