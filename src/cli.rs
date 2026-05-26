@@ -12,7 +12,7 @@ struct Rskm {
 
 #[derive(Subcommand)]
 enum Commands {
-    Init {},
+    Init,
     Create {
         key_name: String,
         #[arg(short = 't')]
@@ -21,7 +21,7 @@ enum Commands {
     Delete {
         key_name: String,
     },
-    List {},
+    List,
     Show {
         key_name: String,
     },
@@ -32,7 +32,7 @@ enum Commands {
         key_name: String,
     },
     Destroy {
-        #[arg(short = 'y')]
+        #[arg(short = 'y', long = "yes")]
         yes: bool,
     },
 }
@@ -41,20 +41,20 @@ pub fn run() -> Result<(), RskmError> {
     let cli = Rskm::parse();
     let settings = RskmSettings::new()?;
 
-    if !matches!(cli.command, Commands::Init {} | Commands::Destroy { .. })                                                                 
-          && !settings.is_initialized()                                                                                                       
-      {                                                                                                                                       
-          return Err(RskmError::NotInitialized);                                                                                              
-      }
+    if !matches!(cli.command, Commands::Init | Commands::Destroy { .. })
+        && !settings.is_initialized()
+    {
+        return Err(RskmError::NotInitialized);
+    }
 
     match cli.command {
-        Commands::Init {} => {
+        Commands::Init => {
             if settings.is_initialized() {
-                  println!("Already initialized");                                                                                           
-            } else {                             
-                  settings.init()?;                                                                                                           
-                  println!("Initialized RSKM_HOME");                                                                                       
-            }   
+                println!("Already initialized");
+            } else {
+                settings.init()?;
+                println!("Initialized RSKM_HOME");
+            }
         }
 
         Commands::Create { key_name, key_type } => {
@@ -74,7 +74,6 @@ pub fn run() -> Result<(), RskmError> {
             let status = std::process::Command::new("ssh-keygen")
                 .args(["-t", &key_type, "-f", key_path, "-N", ""])
                 .stdout(std::process::Stdio::null())
-                .stderr(std::process::Stdio::null())
                 .status()
                 .map_err(|_| RskmError::KeygenFailed)?;
 
@@ -102,7 +101,7 @@ pub fn run() -> Result<(), RskmError> {
             println!("Deleted key '{key_name}'");
         }
 
-        Commands::List {} => {
+        Commands::List => {
             let mut keys: Vec<String> = std::fs::read_dir(settings.keys_dir())?
                 .filter_map(|e| e.ok())
                 .map(|e| e.file_name().to_string_lossy().into_owned())
@@ -142,7 +141,9 @@ pub fn run() -> Result<(), RskmError> {
                 .map_err(|_| RskmError::AgentNotRunning)?;
 
             if !status.success() {
-                return Err(RskmError::AgentOperationFailed(format!("failed to add '{key_name}'")));
+                return Err(RskmError::AgentOperationFailed(format!(
+                    "failed to add '{key_name}'"
+                )));
             }
 
             println!("Added key '{key_name}' to agent.");
@@ -155,13 +156,19 @@ pub fn run() -> Result<(), RskmError> {
                 return Err(RskmError::KeyNotFound(key_name));
             }
 
+            let key_path = key_path
+                .to_str()
+                .ok_or_else(|| RskmError::InvalidPath(format!("invalid path: {:?}", key_path)))?;
+
             let status = std::process::Command::new("ssh-add")
-                .args(["-d", key_path.to_str().unwrap()])
+                .args(["-d", key_path])
                 .status()
                 .map_err(|_| RskmError::AgentNotRunning)?;
 
             if !status.success() {
-                return Err(RskmError::AgentOperationFailed(format!("failed to remove '{key_name}'")));
+                return Err(RskmError::AgentOperationFailed(format!(
+                    "failed to remove '{key_name}'"
+                )));
             }
 
             println!("Removed key '{key_name}' from agent.");
@@ -169,12 +176,13 @@ pub fn run() -> Result<(), RskmError> {
 
         Commands::Destroy { yes } => {
             if !settings.is_initialized() {
-                  println!("Nothing to do: RSKM_HOME dir is not initialized");
-                  return Ok(());                                                                                           
+                println!("Nothing to do: RSKM_HOME dir is not initialized");
+                return Ok(());
             }
 
             if !yes {
-                let answer = input!("Do you really want to delete RSKM_HOME? This cannot be undone! [y/N] ");
+                let answer =
+                    input!("Do you really want to delete RSKM_HOME? This cannot be undone! [y/N] ");
                 if answer.trim().to_lowercase() != "y" {
                     println!("Aborted.");
                     return Ok(());
