@@ -1,8 +1,8 @@
 # rskm
 
-Rust SSH Key Manager — CLI-утилита для управления SSH-ключами.
+Rust SSH Key Manager — a CLI tool for managing SSH keys.
 
-## Установка
+## Installation
 
 ```bash
 cargo install --path .
@@ -10,29 +10,29 @@ cargo install --path .
 
 ## RSKM_HOME
 
-Все ключи и конфигурация хранятся в директории `RSKM_HOME`.
+All keys and configuration are stored in the `RSKM_HOME` directory.
 
-По умолчанию: `~/.rskm`
+Default: `~/.rskm`
 
-Чтобы переопределить — задайте переменную окружения:
+To override, set the environment variable:
 
 ```bash
 export RSKM_HOME=/path/to/custom/dir
 ```
 
-Структура директории:
+Directory structure:
 
 ```
 ~/.rskm/
-├── rskm.toml   # конфиг (default_key_type)
-└── keys/       # SSH-ключи
+├── rskm.toml   # config (default_key_type)
+└── keys/       # SSH keys
 ```
 
-## Использование
+## Usage
 
 ### `init`
 
-Инициализирует `RSKM_HOME`. Необходимо выполнить перед использованием остальных команд.
+Initializes `RSKM_HOME`. Must be run before any other command.
 
 ```bash
 rskm init
@@ -40,18 +40,18 @@ rskm init
 
 ### `create`
 
-Создаёт новый SSH-ключ. По умолчанию используется тип `ed25519`.
+Creates a new SSH key. Defaults to `ed25519`.
 
 ```bash
 rskm create <key_name>
 rskm create <key_name> -t <key_type>
 ```
 
-Поддерживаемые типы: `ed25519`, `ecdsa`, `rsa`, `xmss`
+Supported types: `ed25519`, `ecdsa`, `rsa`, `xmss`
 
 ### `rename`
 
-Переименовывает ключ (приватный и публичный файлы).
+Renames a key (both private and public files).
 
 ```bash
 rskm rename <key_name> <new_name>
@@ -59,7 +59,7 @@ rskm rename <key_name> <new_name>
 
 ### `delete`
 
-Удаляет ключ (приватный и публичный файлы).
+Deletes a key (both private and public files).
 
 ```bash
 rskm delete <key_name>
@@ -67,7 +67,7 @@ rskm delete <key_name>
 
 ### `list`
 
-Выводит список всех ключей.
+Lists all keys.
 
 ```bash
 rskm list
@@ -75,7 +75,7 @@ rskm list
 
 ### `show`
 
-Выводит публичный ключ.
+Prints the public key.
 
 ```bash
 rskm show <key_name>
@@ -83,7 +83,7 @@ rskm show <key_name>
 
 ### `add`
 
-Добавляет ключ в `ssh-agent`.
+Adds a key to `ssh-agent`.
 
 ```bash
 rskm add <key_name>
@@ -91,7 +91,7 @@ rskm add <key_name>
 
 ### `remove`
 
-Удаляет ключ из `ssh-agent`.
+Removes a key from `ssh-agent`.
 
 ```bash
 rskm remove <key_name>
@@ -99,22 +99,22 @@ rskm remove <key_name>
 
 ### `destroy`
 
-Удаляет `RSKM_HOME` вместе со всеми ключами. Запрашивает подтверждение.
+Deletes `RSKM_HOME` along with all keys. Prompts for confirmation.
 
 ```bash
 rskm destroy
-rskm destroy --yes   # без подтверждения
+rskm destroy --yes   # skip confirmation
 ```
 
 ## TODO
 
-- [ ] Управление `~/.ssh/config` (хосты)
-- [ ] Команда `list --loaded` — показывать только ключи, загруженные в агент
-- [ ] Поддержка парольной защиты ключей при создании
-- [ ] `xmss` за feature-флагом (нестандартный тип, требует специальной сборки `ssh-keygen`)
-- [ ] Команда `export` — копировать публичный ключ в буфер обмена
-- [ ] Установочный скрипт / пакеты для дистрибутивов
+- [ ] `~/.ssh/config` management (hosts)
+- [ ] `list --loaded` — show only keys currently loaded in the agent
+- [ ] Passphrase-protected key creation
+- [ ] `xmss` behind a feature flag (non-standard type, requires a specially built `ssh-keygen`)
+- [ ] `export` command — copy public key to clipboard
+- [ ] Installation script / distro packages
 
-## Лицензия
+## License
 
 [LICENSE](LICENSE)
