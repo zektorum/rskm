@@ -51,7 +51,7 @@ impl fmt::Display for RskmError {
             Self::Io(err) => write!(f, "IO error: {}", err),
             Self::HomeDirectoryNotFound => write!(f, "Could not determine home directory"),
             Self::InvalidInput(msg) => write!(f, "Invalid input: {}", msg),
-            Self::InvalidPath(msg) => write!(f, "Invalid input: {}", msg),
+            Self::InvalidPath(msg) => write!(f, "Invalid path: {}", msg),
         }
     }
 }
