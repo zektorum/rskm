@@ -1,6 +1,6 @@
-use std::path::PathBuf;
-use serde::{Deserialize, Serialize};
 use crate::{errors::RskmError, keys::key_types::KeyTypes};
+use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
 
 #[derive(Serialize, Deserialize)]
 pub struct RskmSettings {

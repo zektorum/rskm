@@ -1,7 +1,7 @@
-pub mod errors;
-pub mod keys;
 pub mod cli;
 pub mod config;
+pub mod errors;
+pub mod keys;
 
 fn main() {
     if let Err(e) = cli::run() {

@@ -34,9 +34,13 @@ impl fmt::Display for RskmError {
 
             Self::KeyExists(name) => write!(f, "Key '{}' already exists", name),
             Self::KeyNotFound(name) => write!(f, "Key '{}' not found", name),
-            
+
             Self::KeygenFailed => write!(f, "ssh-keygen failed"), //FIXME
-            Self::UnknownKeyType(key_type) => write!(f, "unknown key type: '{}', must be one of: ed25519, ecdsa, xmss, rsa", key_type),
+            Self::UnknownKeyType(key_type) => write!(
+                f,
+                "unknown key type: '{}', must be one of: ed25519, ecdsa, xmss, rsa",
+                key_type
+            ),
 
             Self::HostExists(name) => write!(f, "Host '{}' already exists", name),
             Self::HostNotFound(name) => write!(f, "Host '{}' not found", name),
@@ -60,7 +64,7 @@ impl std::error::Error for RskmError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
             Self::Io(err) => Some(err),
-            _ => None,                  
+            _ => None,
         }
     }
 }

@@ -14,11 +14,11 @@ impl FromStr for KeyTypes {
 
     fn from_str(s: &str) -> Result<Self, RskmError> {
         match s {
-            "ed25519"   => Ok(KeyTypes::Ed25519),
-            "ecdsa"     => Ok(KeyTypes::Ecdsa),
-            "xmss"      => Ok(KeyTypes::Xmss), //TODO: make feature-toggle for xmss support
-            "rsa"       => Ok(KeyTypes::Rsa),
-            _           => Err(RskmError::UnknownKeyType(s.to_string())),
+            "ed25519" => Ok(KeyTypes::Ed25519),
+            "ecdsa" => Ok(KeyTypes::Ecdsa),
+            "xmss" => Ok(KeyTypes::Xmss), //TODO: make feature-toggle for xmss support
+            "rsa" => Ok(KeyTypes::Rsa),
+            _ => Err(RskmError::UnknownKeyType(s.to_string())),
         }
     }
 }
