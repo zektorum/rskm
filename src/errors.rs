@@ -3,6 +3,8 @@ use std::io;
 
 #[derive(Debug)]
 pub enum RskmError {
+    NotInitialized,
+
     KeyExists(String),
     KeyNotFound(String),
 
@@ -28,6 +30,8 @@ pub enum RskmError {
 impl fmt::Display for RskmError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            Self::NotInitialized => write!(f, "RSKM_HOME not initialized. Run 'rskm init' first"),
+
             Self::KeyExists(name) => write!(f, "Key '{}' already exists", name),
             Self::KeyNotFound(name) => write!(f, "Key '{}' not found", name),
             

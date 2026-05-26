@@ -12,6 +12,7 @@ struct Rskm {
 
 #[derive(Subcommand)]
 enum Commands {
+    Init {},
     Create {
         key_name: String,
         #[arg(short = 't')]
@@ -40,11 +41,22 @@ pub fn run() -> Result<(), RskmError> {
     let cli = Rskm::parse();
     let settings = RskmSettings::new()?;
 
-    if !settings.is_initialized() {
-        settings.init()?;
-    }
+    if !matches!(cli.command, Commands::Init {} | Commands::Destroy { .. })                                                                 
+          && !settings.is_initialized()                                                                                                       
+      {                                                                                                                                       
+          return Err(RskmError::NotInitialized);                                                                                              
+      }
 
     match cli.command {
+        Commands::Init {} => {
+            if settings.is_initialized() {
+                  println!("Already initialized");                                                                                           
+            } else {                             
+                  settings.init()?;                                                                                                           
+                  println!("Initialized RSKM_HOME");                                                                                       
+            }   
+        }
+
         Commands::Create { key_name, key_type } => {
             let key_path = settings.keys_dir().join(&key_name);
 
@@ -156,6 +168,11 @@ pub fn run() -> Result<(), RskmError> {
         }
 
         Commands::Destroy { yes } => {
+            if !settings.is_initialized() {
+                  println!("Nothing to do: RSKM_HOME dir is not initialized");
+                  return Ok(());                                                                                           
+            }
+
             if !yes {
                 let answer = input!("Do you really want to delete RSKM_HOME? This cannot be undone! [y/N] ");
                 if answer.trim().to_lowercase() != "y" {
