@@ -18,6 +18,10 @@ enum Commands {
         #[arg(short = 't')]
         key_type: Option<String>,
     },
+    Rename {
+        key_name: String,
+        new_name: String,
+    },
     Delete {
         key_name: String,
     },
@@ -82,6 +86,25 @@ pub fn run() -> Result<(), RskmError> {
             }
 
             println!("Created key '{key_name}' ({key_type})");
+        }
+
+        Commands::Rename { key_name, new_name } => {
+            let key_path = settings.keys_dir().join(&key_name);
+
+            if !key_path.exists() {
+                return Err(RskmError::KeyNotFound(key_name));
+            }
+
+            let new_path = settings.keys_dir().join(&new_name);
+
+            std::fs::rename(&key_path, &new_path)?;
+
+            let pub_path = key_path.with_extension("pub");
+            if pub_path.exists() {
+                std::fs::rename(pub_path, new_path.with_extension("pub"))?;
+            }
+
+            println!("Renamed key '{key_name}' to '{new_name}'");
         }
 
         Commands::Delete { key_name } => {
