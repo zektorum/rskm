@@ -74,3 +74,28 @@ impl RskmSettings {
         &self.rskm_home
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::config::{DEFAULT_KEY_TYPE, RskmSettings, CONFIG_FILE_NAME};
+    use std::fs;
+
+    #[test]
+    fn test_new_default() {
+        let settings = RskmSettings::new().unwrap();
+        assert_eq!(settings.default_key_type(), DEFAULT_KEY_TYPE)
+    }
+
+    #[test]
+    fn test_new_config() {
+        let tmp_dir = tempfile::tempdir().unwrap();
+        
+        let config_content = format!("default_key_type = \"{}\"", DEFAULT_KEY_TYPE);
+        fs::write(tmp_dir.path().join(CONFIG_FILE_NAME), config_content).unwrap();
+
+        unsafe { std::env::set_var("RSKM_HOME", tmp_dir.path()) };
+
+        let settings = RskmSettings::new().unwrap();
+        assert_eq!(settings.default_key_type(), DEFAULT_KEY_TYPE);
+    }
+}
