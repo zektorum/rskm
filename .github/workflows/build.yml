@@ -1,8 +1,11 @@
 name: build
 
 on:
-  - push
-  - pull_request
+  push:
+    branches:
+      - '**'
+    tags-ignore:
+      - 'v*'
 
 jobs:
   build:
@@ -16,11 +19,13 @@ jobs:
         include:
           - target: aarch64-apple-darwin
             os: macos-latest
-          - target: i686-pc-windows-gnu
-            os: ubuntu-latest
           - target: x86_64-apple-darwin
             os: macos-latest
+          - target: i686-unknown-linux-gnu
+            os: ubuntu-latest
           - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+          - target: i686-pc-windows-gnu
             os: ubuntu-latest
           - target: x86_64-pc-windows-gnu
             os: ubuntu-latest
@@ -34,6 +39,15 @@ jobs:
         if: contains(matrix.target, 'windows-gnu')
         run: |
           sudo apt update && sudo apt install -y mingw-w64
+
+      - name: Install 32-bit Linux libraries
+        if: contains(matrix.target, 'i686-unknown-linux-gnu')
+        run: |
+          sudo apt update
+          sudo apt install -y --no-install-recommends \
+            gcc-multilib \
+            g++-multilib \
+            libc6-dev-i386
 
       - name: Build package
         id: build-package
