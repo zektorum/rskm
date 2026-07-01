@@ -1,0 +1,97 @@
+name: release
+
+on:
+  push:
+    branches-ignore:
+      - '**'
+    tags:
+      - 'v*'
+
+env:
+  PACKAGE_NAME: rskm
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: aarch64-apple-darwin
+            os: macos-latest
+            artifact-platform: darwin_amd64
+          - target: x86_64-apple-darwin
+            os: macos-latest
+            artifact-platform: darwin_arm64
+          - target: i686-unknown-linux-gnu
+            os: ubuntu-latest
+            artifact-platform: linux_686
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+            artifact-platform: linux_amd64
+          - target: i686-pc-windows-gnu
+            os: ubuntu-latest
+            artifact-platform: windows_686
+          - target: x86_64-pc-windows-gnu
+            os: ubuntu-latest
+            artifact-platform: windows_amd64
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Install Windows linker
+        if: contains(matrix.target, 'windows-gnu')
+        run: |
+          sudo apt update && sudo apt install -y mingw-w64
+
+      - name: Install 32-bit Linux libraries
+        if: contains(matrix.target, 'i686-unknown-linux-gnu')
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends \
+            gcc-multilib \
+            g++-multilib \
+
+      - name: Build package
+        id: build-package
+        run: |
+          cargo build --target ${{ matrix.target }} --release
+          PATH_TO_ARTIFACT="$(cargo build --message-format=json | jq -r 'select(.executable != null) | .executable')"
+          
+          if [[ "${{ matrix.target }}" == *windows-gnu ]]; then 
+            mv $PATH_TO_ARTIFACT ${PATH_TO_ARTIFACT}.exe
+            PATH_TO_ARTIFACT=${PATH_TO_ARTIFACT}.exe
+          fi
+          echo "path-to-artifact=$PATH_TO_ARTIFACT" >> "$GITHUB_OUTPUT"
+
+      - name: Upload package
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.PACKAGE_NAME }}_${{ github.ref_name}}_${{ matrix.artifact-platform }}
+          path: ${{ steps.build-package.outputs.path-to-artifact }}
+
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    needs: build
+    steps:
+      - uses: actions/download-artifact@v8
+        name: Download artifacts
+        with:
+          pattern: rskm_*
+          path: dist/
+          merge-multiple: true
+          skip-decompress: true
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            dist/* \
+            --repo="$GITHUB_REPOSITORY" \
+            --title="${GITHUB_REPOSITORY#*/}-v${GITHUB_REF_NAME#v}" \
+            --generate-notes
