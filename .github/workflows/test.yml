@@ -1,8 +1,9 @@
 name: test
 
 on:
-  - push
-  - pull_request
+  push:
+    tags-ignore:
+      - 'v*'
 
 jobs:
   test:
